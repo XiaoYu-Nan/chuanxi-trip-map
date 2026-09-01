@@ -97,7 +97,7 @@
             z-index: 1000;
             transform: translateY(100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 70vh;
+            max-height: calc(50vh - 28px);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -361,6 +361,7 @@
         var allPolylines = [];
         var currentDay = 0;
         var overviewOpen = false;
+        var isAllDaysMode = false;
 
         var markerStyles = {
             start: { color: '#e74c3c', bg: '#fee2e2' },
@@ -395,30 +396,32 @@
         }
 
         function toggleOverview() {
-            overviewOpen = !overviewOpen;
             var ovBottom = document.getElementById('overviewBottom');
             var btn = document.querySelector('.overview-btn-bar');
+            var isShowing = ovBottom.classList.contains('show');
 
-            if (overviewOpen) {
+            if (!isShowing) {
+                // 打开浮层
                 closeDayDetail();
                 document.querySelectorAll('.day-btn').forEach(function(b, idx) {
                     if (idx < 4) b.classList.remove('active');
                 });
                 btn.classList.add('active');
                 ovBottom.classList.add('show');
-                showAllDays();
+                // 如果当前不是总览模式，切换到总览模式
+                if (!isAllDaysMode) {
+                    showAllDays();
+                    isAllDaysMode = true;
+                }
             } else {
-                btn.classList.remove('active');
+                // 关闭浮层，但保持总览模式（不跳转D1）
                 ovBottom.classList.remove('show');
-                switchDay(0);
             }
         }
 
         function closeOverview() {
-            overviewOpen = false;
             document.getElementById('overviewBottom').classList.remove('show');
-            document.querySelector('.overview-btn-bar').classList.remove('active');
-            switchDay(0);
+            // 只关闭浮层，地图保持总览模式，不跳转D1
         }
 
         function openDayDetail(dayIndex) {
@@ -510,6 +513,7 @@
 
         function switchDay(dayIndex) {
             overviewOpen = false;
+            isAllDaysMode = false;
             currentDay = dayIndex;
 
             document.querySelectorAll('.day-btn').forEach(function(btn, idx) {
@@ -537,6 +541,7 @@
         }
 
         function showAllDays() {
+            isAllDaysMode = true;
             document.querySelectorAll('.day-btn').forEach(function(btn, idx) {
                 if (idx === 4) return;
                 btn.classList.remove('active');
