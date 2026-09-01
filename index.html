@@ -411,19 +411,9 @@
                 drawRealRoute(dayIndex, 0.6);
             });
 
-            // 用第一天的起点和最后一天的终点做视野适配
-            var allPoints = [];
-            tripData.forEach(function(day) {
-                day.route.forEach(function(p) {
-                    allPoints.push(p.lnglat);
-                });
-            });
-            if (allPoints.length > 0) {
-                var bounds = new AMap.Bounds(allPoints[0], allPoints[0]);
-                allPoints.forEach(function(p) {
-                    bounds.extend(p);
-                });
-                map.setBounds(bounds, [80, 120, 80, 80]);
+            // 根据所有路线做视野适配
+            if (allPolylines.length > 0) {
+                map.setFitView(allPolylines, false, [80, 120, 80, 80]);
             }
 
             document.getElementById('routeDist').textContent = '897.6 km';
