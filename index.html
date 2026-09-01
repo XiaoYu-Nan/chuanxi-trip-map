@@ -231,15 +231,11 @@
             }
         ];
 
-        // 主要城市列表（总览模式只显示这些）
-        var mainCities = ["成都", "康定", "新都桥镇", "新都桥晨拍", "塔公镇", "塔公草原", "八美镇"];
-
         var map;
         var allMarkers = [];
         var allPolylines = [];
         var currentDay = 0;
         var routeFloatOpen = false;
-        var isAllDays = false;
 
         var markerStyles = {
             start: { color: '#e74c3c', bg: '#fee2e2' },
@@ -334,10 +330,7 @@
             switchDay(0);
         }
 
-        // 创建标记
-        // isAllMode: 是否全部显示模式
-        // showLabel: 是否显示标签
-        function createMarker(point, dayIndex, pointIndex, isAllMode, showLabel) {
+        function createMarker(point, dayIndex, pointIndex) {
             var style = markerStyles[point.type] || markerStyles.spot;
             var ld = labelDirs[pointIndex % labelDirs.length];
 
@@ -351,17 +344,14 @@
                 extData: { dayIndex: dayIndex, pointIndex: pointIndex }
             });
 
-            // 只在需要时显示标签
-            if (showLabel) {
-                marker.setLabel({
-                    content: '<div style="background:' + style.bg + ';color:' + style.color + ';padding:3px 8px;' +
-                             'border-radius:6px;font-size:11px;font-weight:bold;white-space:nowrap;' +
-                             'box-shadow:0 1px 4px rgba(0,0,0,0.15);border:1px solid ' + style.color + ';">' + 
-                             point.name + '</div>',
-                    offset: new AMap.Pixel(ld.offx, ld.offy),
-                    direction: ld.dir
-                });
-            }
+            marker.setLabel({
+                content: '<div style="background:' + style.bg + ';color:' + style.color + ';padding:3px 8px;' +
+                         'border-radius:6px;font-size:11px;font-weight:bold;white-space:nowrap;' +
+                         'box-shadow:0 1px 4px rgba(0,0,0,0.15);border:1px solid ' + style.color + ';">' + 
+                         point.name + '</div>',
+                offset: new AMap.Pixel(ld.offx, ld.offy),
+                direction: ld.dir
+            });
 
             return marker;
         }
@@ -387,7 +377,6 @@
         }
 
         function switchDay(dayIndex) {
-            isAllDays = false;
             currentDay = dayIndex;
             document.querySelectorAll('.day-btn').forEach(function(btn, idx) {
                 btn.classList.toggle('active', idx === dayIndex);
@@ -397,8 +386,7 @@
             allPolylines = [];
             var day = tripData[dayIndex];
             day.route.forEach(function(point, idx) {
-                // 单天模式：所有点位都显示标签
-                var marker = createMarker(point, dayIndex, idx, false, true);
+                var marker = createMarker(point, dayIndex, idx);
                 map.add(marker);
                 allMarkers.push(marker);
             });
@@ -411,7 +399,6 @@
         }
 
         function showAllDays() {
-            isAllDays = true;
             document.querySelectorAll('.day-btn').forEach(function(btn) {
                 btn.classList.remove('active');
             });
@@ -419,25 +406,30 @@
             allMarkers = [];
             allPolylines = [];
 
+            // 总览模式：只画路线，不画任何标记
             tripData.forEach(function(day, dayIndex) {
-                day.route.forEach(function(point, idx) {
-                    // 总览模式：只给主要城市显示标签
-                    var isMainCity = mainCities.indexOf(point.name) >= 0;
-                    var marker = createMarker(point, dayIndex, idx, true, isMainCity);
-                    map.add(marker);
-                    allMarkers.push(marker);
-                });
-                // 全部显示时路线透明度0.6
                 drawRealRoute(dayIndex, 0.6);
             });
 
-            if (allMarkers.length > 0) {
-                map.setFitView(allMarkers, false, [80, 120, 80, 80]);
+            // 用第一天的起点和最后一天的终点做视野适配
+            var allPoints = [];
+            tripData.forEach(function(day) {
+                day.route.forEach(function(p) {
+                    allPoints.push(p.lnglat);
+                });
+            });
+            if (allPoints.length > 0) {
+                var bounds = new AMap.Bounds(allPoints[0], allPoints[0]);
+                allPoints.forEach(function(p) {
+                    bounds.extend(p);
+                });
+                map.setBounds(bounds, [80, 120, 80, 80]);
             }
+
             document.getElementById('routeDist').textContent = '897.6 km';
             document.getElementById('routeTime').textContent = '4天总里程';
             closeDayDetail();
-            showToast('已显示全部4天路线（仅标注主要城市）');
+            showToast('已显示全部4天路线');
         }
 
         window.onload = initMap;
