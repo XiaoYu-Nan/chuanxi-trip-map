@@ -45,6 +45,9 @@
             padding: 12px; width: 260px;
             transform: translateX(-130%);
             transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .route-float.show { transform: translateX(0); }
         .route-float h4 { color: #8B4513; font-size: 12px; margin-bottom: 10px; text-align: center; }
