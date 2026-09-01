@@ -42,7 +42,7 @@
             position: fixed; top: 96px; left: 10px; z-index: 1000;
             background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
             border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-            padding: 12px; width: 220px;
+            padding: 12px; width: 260px;
             transform: translateX(-130%);
             transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -60,6 +60,49 @@
         .route-float .r-node.d3 { background: #d6eaf8; color: #2471a3; border-color: #3498db; }
         .route-float .r-node.d4 { background: #d5f5e3; color: #1e8449; border-color: #27ae60; }
         .route-float .r-arrow { color: #bbb; font-size: 10px; margin: 0 1px; }
+
+        /* 浮层内各区块 */
+        .float-section { margin-bottom: 10px; padding: 10px; border-radius: 10px; background: #faf8f5; }
+        .float-section:last-child { margin-bottom: 0; }
+
+        /* 集合信息 */
+        .info-bar { background: linear-gradient(135deg, #faf8f5, #f5f0eb); }
+        .info-row { font-size: 11px; color: #555; margin: 3px 0; }
+        .info-row .info-icon { margin-right: 4px; }
+
+        /* 每天区块 */
+        .day-block { margin-bottom: 10px; padding: 10px; border-radius: 10px; border-left: 3px solid; }
+        .day-block.d1-block { border-left-color: #e74c3c; background: #fff5f5; }
+        .day-block.d2-block { border-left-color: #f39c12; background: #fffbf0; }
+        .day-block.d3-block { border-left-color: #3498db; background: #f0f7ff; }
+        .day-block.d4-block { border-left-color: #27ae60; background: #f0fff5; }
+
+        .day-header { font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .day-header .day-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .day-header .day-meta { font-size: 10px; color: #999; font-weight: normal; margin-left: auto; }
+
+        /* 时间轴 */
+        .timeline { margin-bottom: 8px; }
+        .t-item { display: flex; align-items: baseline; margin: 3px 0; font-size: 11px; }
+        .t-item .t-time { color: #8B4513; font-weight: bold; min-width: 36px; font-size: 10px; }
+        .t-item .t-name { color: #444; }
+
+        /* 标签 */
+        .day-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+        .day-tags .tag { font-size: 10px; padding: 2px 6px; border-radius: 6px; background: #fff; border: 1px solid #ddd; }
+        .day-tags .tag.stay { color: #3498db; border-color: #3498db; }
+        .day-tags .tag.food { color: #27ae60; border-color: #27ae60; }
+        .day-tags .tag.spot { color: #e74c3c; border-color: #e74c3c; }
+
+        /* 提醒 */
+        .tips-block { background: #fff8f0; border: 1px solid #ffe0b2; }
+        .tips-title { font-size: 12px; color: #e67e22; font-weight: bold; margin-bottom: 6px; }
+        .tip-item { font-size: 10px; color: #666; margin: 4px 0; line-height: 1.5; }
+
+        /* 总汇总 */
+        .total-block { background: linear-gradient(135deg, #8B4513, #A0522D); color: white; }
+        .total-line { font-size: 11px; margin: 4px 0; }
+        .total-line b { font-weight: bold; }
 
         .route-info {
             position: fixed; top: 58px; right: 10px; z-index: 1000;
@@ -127,34 +170,91 @@
     <button class="overview-btn" id="overviewBtn" onclick="toggleOverview()">📋 总览</button>
 
     <div class="route-float" id="routeFloat">
-        <h4>🛣️ 全程路线</h4>
-        <div class="r-line">
-            <span class="r-label">D1</span>
-            <span class="r-node d1">成都</span><span class="r-arrow">→</span>
-            <span class="r-node d1">天全</span><span class="r-arrow">→</span>
-            <span class="r-node d1">泸定</span><span class="r-arrow">→</span>
-            <span class="r-node d1">康定</span>
+        <!-- 集合信息 -->
+        <div class="float-section info-bar">
+            <div class="info-row"><span class="info-icon">📍</span><b>集合：</b>成都市区，07:00</div>
+            <div class="info-row"><span class="info-icon">🚗</span><b>车型：</b>SUV/越野车</div>
+            <div class="info-row"><span class="info-icon">👥</span><b>人数：</b>建议4人/车</div>
         </div>
-        <div class="r-line">
-            <span class="r-label">D2</span>
-            <span class="r-node d2">康定</span><span class="r-arrow">→</span>
-            <span class="r-node d2">折多山</span><span class="r-arrow">→</span>
-            <span class="r-node d2">新都桥</span><span class="r-arrow">→</span>
-            <span class="r-node d2">鱼子西</span>
+
+        <!-- D1 -->
+        <div class="day-block d1-block">
+            <div class="day-header"><span class="day-dot" style="background:#e74c3c;"></span><b>D1</b> 成都 → 康定 <span class="day-meta">311km · 约5h · ¥295/人</span></div>
+            <div class="timeline">
+                <div class="t-item"><span class="t-time">07:00</span><span class="t-name">成都出发</span></div>
+                <div class="t-item"><span class="t-time">09:30</span><span class="t-name">天全服务区（休整）</span></div>
+                <div class="t-item"><span class="t-time">11:30</span><span class="t-name">泸定桥（游览1h）</span></div>
+                <div class="t-item"><span class="t-time">14:00</span><span class="t-name">康定入住</span></div>
+                <div class="t-item"><span class="t-time">17:00</span><span class="t-name">情歌广场+藏餐</span></div>
+            </div>
+            <div class="day-tags">
+                <span class="tag stay">🏨 住康定 ¥200/间</span>
+                <span class="tag food">🍜 藏餐 ¥60/人</span>
+            </div>
         </div>
-        <div class="r-line">
-            <span class="r-label">D3</span>
-            <span class="r-node d3">新都桥</span><span class="r-arrow">→</span>
-            <span class="r-node d3">八郎生都</span><span class="r-arrow">→</span>
-            <span class="r-node d3">塔公草原</span><span class="r-arrow">→</span>
-            <span class="r-node d3">塔公镇</span>
+
+        <!-- D2 -->
+        <div class="day-block d2-block">
+            <div class="day-header"><span class="day-dot" style="background:#f39c12;"></span><b>D2</b> 康定 → 新都桥 <span class="day-meta">90km · 约2.3h · ¥290/人</span></div>
+            <div class="timeline">
+                <div class="t-item"><span class="t-time">08:30</span><span class="t-name">折多山垭口（4298m）</span></div>
+                <div class="t-item"><span class="t-time">12:00</span><span class="t-name">新都桥入住</span></div>
+                <div class="t-item"><span class="t-time">16:00</span><span class="t-name">鱼子西（日落）</span></div>
+                <div class="t-item"><span class="t-time">19:30</span><span class="t-name">牦牛肉汤锅</span></div>
+            </div>
+            <div class="day-tags">
+                <span class="tag stay">🏨 住新都桥 ¥180/间</span>
+                <span class="tag food">🍜 汤锅 ¥80/人</span>
+            </div>
         </div>
-        <div class="r-line">
-            <span class="r-label">D4</span>
-            <span class="r-node d4">塔公镇</span><span class="r-arrow">→</span>
-            <span class="r-node d4">墨石公园</span><span class="r-arrow">→</span>
-            <span class="r-node d4">八美镇</span><span class="r-arrow">→</span>
-            <span class="r-node d4">成都</span>
+
+        <!-- D3 -->
+        <div class="day-block d3-block">
+            <div class="day-header"><span class="day-dot" style="background:#3498db;"></span><b>D3</b> 新都桥 → 塔公 <span class="day-meta">64km · 约1.7h · ¥185/人</span></div>
+            <div class="timeline">
+                <div class="t-item"><span class="t-time">07:00</span><span class="t-name">新都桥晨拍</span></div>
+                <div class="t-item"><span class="t-time">10:00</span><span class="t-name">八郎生都（观景台）</span></div>
+                <div class="t-item"><span class="t-time">14:00</span><span class="t-name">塔公草原</span></div>
+                <div class="t-item"><span class="t-time">17:00</span><span class="t-name">塔公镇入住</span></div>
+                <div class="t-item"><span class="t-time">18:30</span><span class="t-name">塔公寺（日落）</span></div>
+            </div>
+            <div class="day-tags">
+                <span class="tag stay">🏨 住塔公镇 ¥150/间</span>
+                <span class="tag spot">🎫 草原费¥15</span>
+            </div>
+        </div>
+
+        <!-- D4 -->
+        <div class="day-block d4-block">
+            <div class="day-header"><span class="day-dot" style="background:#27ae60;"></span><b>D4</b> 塔公 → 成都 <span class="day-meta">430km · 约9.6h · ¥130/人</span></div>
+            <div class="timeline">
+                <div class="t-item"><span class="t-time">08:00</span><span class="t-name">塔公镇出发</span></div>
+                <div class="t-item"><span class="t-time">09:30</span><span class="t-name">墨石公园（游览2h）</span></div>
+                <div class="t-item"><span class="t-time">12:30</span><span class="t-name">八美镇午餐</span></div>
+                <div class="t-item"><span class="t-time">18:00</span><span class="t-name">回到成都</span></div>
+            </div>
+            <div class="day-tags">
+                <span class="tag spot">🎫 墨石公园¥80</span>
+                <span class="tag food">🍜 川菜 ¥50/人</span>
+            </div>
+        </div>
+
+        <!-- 提醒事项 -->
+        <div class="float-section tips-block">
+            <div class="tips-title">⚠️ 提醒事项</div>
+            <div class="tip-item">🧣 折多山海拔4298m，注意高反，备氧气瓶</div>
+            <div class="tip-item">🧴 高原紫外线强，防晒+墨镜必备</div>
+            <div class="tip-item">📱 鱼子西需提前预约，关注官方公众号</div>
+            <div class="tip-item">⛽ 沿途加油站少，油量保持半箱以上</div>
+            <div class="tip-item">💊 备红景天、感冒药、肠胃药</div>
+        </div>
+
+        <!-- 总汇总 -->
+        <div class="float-section total-block">
+            <div class="total-line">🛣️ <b>总里程：</b>897.6 km</div>
+            <div class="total-line">⏱️ <b>总用时：</b>约18.6小时（不含游玩）</div>
+            <div class="total-line">💰 <b>人均预算：</b>约 ¥900（含住宿餐饮门票）</div>
+            <div class="total-line">🏨 <b>住宿：</b>3晚共 ¥530/间（可2人分摊）</div>
         </div>
     </div>
 
