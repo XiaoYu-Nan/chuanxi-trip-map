@@ -133,24 +133,21 @@
             <span class="r-node d1">成都</span><span class="r-arrow">→</span>
             <span class="r-node d1">天全</span><span class="r-arrow">→</span>
             <span class="r-node d1">泸定</span><span class="r-arrow">→</span>
-            <span class="r-node d1">康定</span><span class="r-arrow">→</span>
-            <span class="r-node d1">情歌广场</span>
+            <span class="r-node d1">康定</span>
         </div>
         <div class="r-line">
             <span class="r-label">D2</span>
             <span class="r-node d2">康定</span><span class="r-arrow">→</span>
             <span class="r-node d2">折多山</span><span class="r-arrow">→</span>
             <span class="r-node d2">新都桥</span><span class="r-arrow">→</span>
-            <span class="r-node d2">鱼子西</span><span class="r-arrow">→</span>
-            <span class="r-node d2">晚餐</span>
+            <span class="r-node d2">鱼子西</span>
         </div>
         <div class="r-line">
             <span class="r-label">D3</span>
             <span class="r-node d3">新都桥</span><span class="r-arrow">→</span>
             <span class="r-node d3">八郎生都</span><span class="r-arrow">→</span>
             <span class="r-node d3">塔公草原</span><span class="r-arrow">→</span>
-            <span class="r-node d3">塔公镇</span><span class="r-arrow">→</span>
-            <span class="r-node d3">塔公寺</span>
+            <span class="r-node d3">塔公镇</span>
         </div>
         <div class="r-line">
             <span class="r-label">D4</span>
@@ -234,13 +231,8 @@
             }
         ];
 
-        // 全部显示时的标记偏移量（避免同一地点重叠）
-        var dayOffsets = [
-            { lng: 0, lat: 0 },      // D1: 不偏移
-            { lng: 0.003, lat: 0.003 }, // D2: 右上
-            { lng: 0.005, lat: 0 },     // D3: 右
-            { lng: -0.003, lat: 0.003 } // D4: 左上
-        ];
+        // 主要城市列表（总览模式只显示这些）
+        var mainCities = ["成都", "康定", "新都桥镇", "新都桥晨拍", "塔公镇", "塔公草原", "八美镇"];
 
         var map;
         var allMarkers = [];
@@ -343,20 +335,14 @@
         }
 
         // 创建标记
-        // isAllMode: 是否全部显示模式（会加偏移和天数前缀）
-        function createMarker(point, dayIndex, pointIndex, isAllMode) {
+        // isAllMode: 是否全部显示模式
+        // showLabel: 是否显示标签
+        function createMarker(point, dayIndex, pointIndex, isAllMode, showLabel) {
             var style = markerStyles[point.type] || markerStyles.spot;
             var ld = labelDirs[pointIndex % labelDirs.length];
 
-            // 全部显示模式：应用偏移避免重叠
-            var pos = point.lnglat;
-            if (isAllMode) {
-                var offset = dayOffsets[dayIndex];
-                pos = [point.lnglat[0] + offset.lng, point.lnglat[1] + offset.lat];
-            }
-
             var marker = new AMap.Marker({
-                position: pos,
+                position: point.lnglat,
                 title: point.name,
                 offset: new AMap.Pixel(-18, -36),
                 content: '<div style="width:36px;height:36px;border-radius:50%;background:' + style.color + 
@@ -365,20 +351,17 @@
                 extData: { dayIndex: dayIndex, pointIndex: pointIndex }
             });
 
-            // 标签内容
-            var labelText = point.name;
-            if (isAllMode) {
-                labelText = tripData[dayIndex].day + '-' + point.name;
+            // 只在需要时显示标签
+            if (showLabel) {
+                marker.setLabel({
+                    content: '<div style="background:' + style.bg + ';color:' + style.color + ';padding:3px 8px;' +
+                             'border-radius:6px;font-size:11px;font-weight:bold;white-space:nowrap;' +
+                             'box-shadow:0 1px 4px rgba(0,0,0,0.15);border:1px solid ' + style.color + ';">' + 
+                             point.name + '</div>',
+                    offset: new AMap.Pixel(ld.offx, ld.offy),
+                    direction: ld.dir
+                });
             }
-
-            marker.setLabel({
-                content: '<div style="background:' + style.bg + ';color:' + style.color + ';padding:3px 8px;' +
-                         'border-radius:6px;font-size:11px;font-weight:bold;white-space:nowrap;' +
-                         'box-shadow:0 1px 4px rgba(0,0,0,0.15);border:1px solid ' + style.color + ';">' + 
-                         labelText + '</div>',
-                offset: new AMap.Pixel(ld.offx, ld.offy),
-                direction: ld.dir
-            });
 
             return marker;
         }
@@ -414,7 +397,8 @@
             allPolylines = [];
             var day = tripData[dayIndex];
             day.route.forEach(function(point, idx) {
-                var marker = createMarker(point, dayIndex, idx, false);
+                // 单天模式：所有点位都显示标签
+                var marker = createMarker(point, dayIndex, idx, false, true);
                 map.add(marker);
                 allMarkers.push(marker);
             });
@@ -437,11 +421,13 @@
 
             tripData.forEach(function(day, dayIndex) {
                 day.route.forEach(function(point, idx) {
-                    var marker = createMarker(point, dayIndex, idx, true);
+                    // 总览模式：只给主要城市显示标签
+                    var isMainCity = mainCities.indexOf(point.name) >= 0;
+                    var marker = createMarker(point, dayIndex, idx, true, isMainCity);
                     map.add(marker);
                     allMarkers.push(marker);
                 });
-                // 全部显示时路线透明度0.6，避免重叠路段看不清
+                // 全部显示时路线透明度0.6
                 drawRealRoute(dayIndex, 0.6);
             });
 
@@ -451,7 +437,7 @@
             document.getElementById('routeDist').textContent = '897.6 km';
             document.getElementById('routeTime').textContent = '4天总里程';
             closeDayDetail();
-            showToast('已显示全部4天路线（同地点已偏移避免重叠）');
+            showToast('已显示全部4天路线（仅标注主要城市）');
         }
 
         window.onload = initMap;
